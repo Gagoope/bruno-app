@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Kebatho Modise</title>
+    <meta name="description" content="Explore Kebatho Modise's portfolio showcasing expertise in risk management, insurance training, and client solicitation.">
+    <meta name="keywords" content="Kebatho Modise, Portfolio, Risk Management, Insurance Training, Client Solicitation, Professional Services">
+    <meta name="author" content="Kebatho Modise">
+    <meta property="og:title" content="Portfolio - Kebatho Modise">
+    <meta property="og:description" content="Professional portfolio showcasing expertise in risk management and insurance training.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kebathomodise.com/portfolio.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Portfolio - Kebatho Modise">
+    <meta name="twitter:description" content="Professional portfolio showcasing expertise in risk management and insurance training.">
+    <link rel="canonical" href="https://kebathomodise.com/portfolio.html">
+    <link rel="icon" type="image/png" href="assests/Images/icon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1>Kebatho Modise</h1>
+                <button class="mobile-menu" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section id="portfolio">
+        <div class="container">
+            <div class="glass">
+                <h2>My Portfolio</h2>
+                <div class="portfolio-grid">
+                    <div class="portfolio-card" onclick="openModal('insurance-training')">
+                        <h3>Insurance Training Programs</h3>
+                        <p>As an Insurance Trainer at the Insurance Training Institute, I have developed and delivered comprehensive training programs on risk management and insurance principles.</p>
+                        <span class="view-details">View Details</span>
+                    </div>
+                    <div class="portfolio-card" onclick="openModal('client-solicitation')">
+                        <h3>Client Solicitation Projects</h3>
+                        <p>At Firstsun Alliance Insurance Brokers, I successfully solicited new clients and captured business, contributing to company growth.</p>
+                        <span class="view-details">View Details</span>
+                    </div>
+                    <div class="portfolio-card" onclick="openModal('workshop-assistance')">
+                        <h3>Workshop Assistance</h3>
+                        <p>Provided support in workshops at Altonevile Holdings, assisting in various tasks and gaining hands-on experience in operational environments.</p>
+                        <span class="view-details">View Details</span>
+                    </div>
+                    <div class="portfolio-card" onclick="openModal('risk-management')">
+                        <h3>Risk Management Education</h3>
+                        <p>Through my B.Com (Hons) in Risk Management and Insurance, I have a strong foundation in analyzing and mitigating risks in various sectors.</p>
+                        <span class="view-details">View Details</span>
+                    </div>
+                </div>
+
+                <!-- Modal Structure -->
+                <div id="portfolio-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                    <div class="modal-content">
+                        <span class="close-modal" onclick="closeModal()" aria-label="Close modal">&times;</span>
+                        <div id="modal-body">
+                            <!-- Content will be dynamically loaded -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Kebatho Modise. All rights reserved.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
