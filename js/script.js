@@ -382,6 +382,25 @@ const chatInput = document.getElementById('chat-input');
 const sendMessageBtn = document.getElementById('send-message');
 const chatToggle = document.getElementById('chat-toggle');
 
+// Add accessibility attributes
+if (chatModal) {
+  chatModal.setAttribute('aria-label', 'Chat modal for interacting with Kebatho\'s virtual assistant');
+  chatModal.setAttribute('role', 'dialog');
+}
+if (chatInput) {
+  chatInput.setAttribute('aria-label', 'Type your message here');
+  chatInput.setAttribute('placeholder', 'Type your message...');
+}
+if (sendMessageBtn) {
+  sendMessageBtn.setAttribute('aria-label', 'Send message');
+}
+if (chatToggle) {
+  chatToggle.setAttribute('aria-label', 'Open chat with Kebatho\'s assistant');
+}
+
+// Conversation history for context (max 5 exchanges)
+let conversationHistory = [];
+
 function openChatModal() {
   chatModal.style.display = 'block';
   chatModal.classList.add('opening');
@@ -406,6 +425,12 @@ function addMessage(content, type) {
   } else {
     messageDiv.textContent = content;
   }
+
+  // Log to conversation history (max 5 exchanges)
+  conversationHistory.push({ type, content });
+  if (conversationHistory.length > 5) {
+    conversationHistory.shift(); // Remove oldest
+  }
 }
 
 function simulateTyping(text, element) {
@@ -427,10 +452,100 @@ function simulateTyping(text, element) {
 function getBotResponse(userMessage) {
   const message = userMessage.toLowerCase().trim();
 
+  // Helper function to get or set usage counter in localStorage
+  function getUsageCounter(key) {
+    return parseInt(localStorage.getItem(key) || '0');
+  }
+  function setUsageCounter(key, value) {
+    localStorage.setItem(key, value.toString());
+  }
+
+  // Helper function to get stored user name
+  function getUserName() {
+    return localStorage.getItem('userName');
+  }
+  function setUserName(name) {
+    localStorage.setItem('userName', name);
+  }
+
+  // Check for user name introduction
+  const namePatterns = [
+    /i'm\s+([a-zA-Z\s]+)/i,
+    /my name is\s+([a-zA-Z\s]+)/i,
+    /i am\s+([a-zA-Z\s]+)/i,
+    /call me\s+([a-zA-Z\s]+)/i
+  ];
+  for (const pattern of namePatterns) {
+    const match = userMessage.match(pattern);
+    if (match) {
+      const name = match[1].trim();
+      setUserName(name);
+      return `Nice to meet you, ${name}! I'm Kebatho's virtual assistant. How can I help you today? 😊`;
+    }
+  }
+
+  // Check for reset command
+  if (message === 'reset' || message === 'clear') {
+    conversationHistory = [];
+    localStorage.clear();
+    return "Conversation history and preferences have been reset! Starting fresh. How can I help you today? 🔄";
+  }
+
+  // Check conversation history for context (e.g., reference previous topics)
+  const lastBotMessage = conversationHistory.slice().reverse().find(entry => entry.type === 'bot');
+  const lastUserMessage = conversationHistory.slice().reverse().find(entry => entry.type === 'user');
+
+  // Context-aware responses
+  if (message.includes('what about that') || message.includes('tell me more') || message.includes('elaborate')) {
+    if (lastBotMessage && lastBotMessage.content.includes('skills')) {
+      return "Building on my skills, I'm particularly strong in analytical thinking—perfect for assessing insurance risks. My presentation skills help me train others effectively. What aspect interests you most? 📈";
+    } else if (lastBotMessage && lastBotMessage.content.includes('experience')) {
+      return "Regarding my experience, my time as an Insurance Trainer has been the most rewarding. I've developed custom programs that boosted trainees' confidence by 40%. Curious about a specific role? 🎓";
+    } else if (lastBotMessage && lastBotMessage.content.includes('education')) {
+      return "On education, my B.Com (Hons) in Risk Management and Insurance gave me a solid foundation in financial modeling and compliance. It prepared me for real-world challenges in Botswana's insurance sector. Any questions about my studies? 📚";
+    } else if (lastBotMessage && lastBotMessage.content.includes('portfolio')) {
+      return "Kebatho's portfolio showcases his expertise in insurance training, client solicitation, workshop assistance, and risk management education. Each project demonstrates his commitment to excellence in the insurance sector. Want to explore a specific project? 📁";
+    } else if (lastBotMessage && lastBotMessage.content.includes('contact')) {
+      return "Kebatho is easily reachable via phone (+267 74148488), email (kebathomodise3@gmail.com), or WhatsApp. He's always open to discussing opportunities in risk management and insurance training. Ready to connect? 📞";
+    } else if (lastBotMessage && lastBotMessage.content.includes('social')) {
+      return "On social media, Kebatho shares insights on risk management, insurance trends, and professional development. Follow him for valuable content and networking opportunities. Which platform interests you most? 📱";
+    }
+  }
+
+  // Check for numbers and calculate sum of odd numbers
+  const numberRegex = /\d+/g;
+  const numbers = userMessage.match(numberRegex);
+  if (numbers) {
+    const nums = numbers.map(n => parseInt(n));
+    const oddNumbers = nums.filter(n => n % 2 !== 0);
+    if (oddNumbers.length > 0) {
+      const sum = oddNumbers.reduce((a, b) => a + b, 0);
+      const oddList = oddNumbers.join(' + ');
+      return `I found some odd numbers in your message: ${oddList}. Their sum is ${sum}! In risk management, understanding odds helps assess probabilities. 🔢`;
+    }
+  }
+
   if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
-    return "Hello there! I'm Kebatho's virtual assistant. How can I help you today? 😊";
+    const userName = getUserName();
+    const greetings = [
+      `Hello${userName ? ` ${userName}` : ''}! I'm Kebatho's virtual assistant. How can I help you today? 😊`,
+      `Hi${userName ? ` ${userName}` : ''}! Nice to meet you. What can I assist with regarding Kebatho? 👋`,
+      `Hey${userName ? ` ${userName}` : ''}! Ready to chat about Kebatho's portfolio or skills? Let's dive in! 🚀`
+    ];
+    const counter = getUsageCounter('helloCounter');
+    const response = greetings[counter % greetings.length];
+    setUsageCounter('helloCounter', counter + 1);
+    return response;
   } else if (message.includes('bye') || message.includes('goodbye') || message.includes('see you')) {
-    return "Goodbye! Don't forget to check out Kebatho's amazing portfolio. Come back soon! 👋";
+    const farewells = [
+      "Goodbye! Don't forget to check out Kebatho's amazing portfolio. Come back soon! 👋",
+      "See you later! Hope you enjoyed learning about Kebatho. Take care! 😊",
+      "Farewell! Remember, Kebatho's always here in spirit. Bye for now! 🌟"
+    ];
+    const counter = getUsageCounter('byeCounter');
+    const response = farewells[counter % farewells.length];
+    setUsageCounter('byeCounter', counter + 1);
+    return response;
   } else if (message.includes('joke') || message.includes('funny')) {
     const jokes = [
       "Why did the risk manager bring a ladder to work? Because he heard the stakes were high! 😂",
@@ -439,7 +554,15 @@ function getBotResponse(userMessage) {
     ];
     return jokes[Math.floor(Math.random() * jokes.length)];
   } else if (message.includes('hilarious') || message.includes('funny') || message.includes('lol') || message.includes('haha') || message.includes('lmao') || message.includes('rofl')) {
-    return "Glad you enjoyed the joke! Want to hear another one? Just say 'joke'! 😄";
+    const laughResponses = [
+      "Glad you enjoyed the joke! Want to hear another one? Just say 'joke'! 😄",
+      "Haha, I'm glad that tickled your funny bone! More jokes? Type 'joke'! 😂",
+      "Laughter is the best medicine! Ready for another joke? Say the word! 😆"
+    ];
+    const counter = getUsageCounter('laughCounter');
+    const response = laughResponses[counter % laughResponses.length];
+    setUsageCounter('laughCounter', counter + 1);
+    return response;
   } else if (message.includes('about') || message.includes('background') || message.includes('bio')) {
     return "I am Kebatho Modise, a Risk Manager and Insurance Trainer from Botswana. I have 10 months' experience in client solicitation and 2 years 6 months as an Insurance Trainer. I'm passionate about risk management and insurance education. Fun fact: I once trained a group of trainees who thought 'risk' was just a board game! 🎲";
   } else if (message.includes('education') || message.includes('degree') || message.includes('school')) {
@@ -455,15 +578,52 @@ function getBotResponse(userMessage) {
   } else if (message.includes('social') || message.includes('accounts') || message.includes('linkedin') || message.includes('twitter') || message.includes('facebook') || message.includes('tiktok')) {
     return "You can find me on social media: LinkedIn - https://linkedin.com/in/kebathomodise, Twitter - https://twitter.com/KebathoModise, Facebook - https://facebook.com/BrunoModise, TikTok - https://tiktok.com/@BrunoModise. Feel free to connect! Follow me for daily doses of risk management wisdom and occasional cat videos. 🐱";
   } else if (message.includes('thanks') || message.includes('thank you')) {
-    return "You're welcome! If you need anything else, just ask. I'm here to help, not to judge your questionable life choices. 😉";
+    const thanksResponses = [
+      "You're welcome! If you need anything else, just ask. I'm here to help, not to judge your questionable life choices. 😉",
+      "No problem at all! Happy to assist. What's next on your mind? 😊",
+      "My pleasure! Feel free to ask more questions anytime. 👍"
+    ];
+    const counter = getUsageCounter('thanksCounter');
+    const response = thanksResponses[counter % thanksResponses.length];
+    setUsageCounter('thanksCounter', counter + 1);
+    return response;
   } else if (message.includes('name')) {
     return "I'm the chatbot for Kebatho Modise. You can call me Chatty! What's your name? 🤖";
   } else if (message.includes('ok') || message.includes('alright') || message.includes('yes') || message.includes('sure') || message.includes('cool') || message.includes('great')) {
-    return "Awesome! Is there anything specific you'd like to know about Kebatho? Maybe his skills, experience, or just a joke? 😊";
+    const positiveResponses = [
+      "Awesome! Is there anything specific you'd like to know about Kebatho? Maybe his skills, experience, or just a joke? 😊",
+      "Great! What else can I tell you about Kebatho? His portfolio, education, or a fun fact? 🎉",
+      "Cool! Let's keep the conversation going. Ask me about anything! 💬"
+    ];
+    const counter = getUsageCounter('positiveCounter');
+    const response = positiveResponses[counter % positiveResponses.length];
+    setUsageCounter('positiveCounter', counter + 1);
+    return response;
   } else if (message.includes('no') || message.includes('nah') || message.includes('not really')) {
-    return "No worries! Feel free to ask anything else or say 'joke' for some fun. What else can I help with? 🤔";
+    const negativeResponses = [
+      "No worries! Feel free to ask anything else or say 'joke' for some fun. What else can I help with? 🤔",
+      "Alright, no problem! Is there something specific you'd like to know? Maybe about Kebatho's skills? 😊",
+      "Okay, got it! Let me know if you change your mind or have another question. 👍"
+    ];
+    const counter = getUsageCounter('negativeCounter');
+    const response = negativeResponses[counter % negativeResponses.length];
+    setUsageCounter('negativeCounter', counter + 1);
+    return response;
+  } else if (message.includes('odds') || message.includes('probability') || message.includes('risk')) {
+    return "As a risk management expert, I love talking about odds and probabilities! In insurance, we calculate odds to assess risks. For example, the odds of something happening are probability divided by (1 - probability). What specific odds or risk scenario are you curious about? 📊";
+  } else if (message.includes('calculate') || message.includes('math') || message.includes('sum')) {
+    return "I can help with basic calculations! If you give me numbers, I can sum the odd ones for you. For example, try saying '1 2 3 4 5'. What calculation can I assist with? 🧮";
   } else {
-    return "I'm sorry, I didn't understand that. Try asking about my background, education, experience, skills, contact information, portfolio, social accounts, or just say 'joke' for a laugh! 😄";
+    // Varied fallbacks for any response type
+    const fallbacks = [
+      "Hmm, I'm not sure I caught that. Could you rephrase? Or try asking about Kebatho's background, skills, or say 'joke' for some fun! 😅",
+      "That's an interesting input! As Kebatho's assistant, I specialize in portfolio info, but I'm always up for a chat. What would you like to know? 🤔",
+      "I might not have a direct answer for that, but I can tell you about Kebatho's impressive risk management career! Want details? 💼",
+      "Let's pivot back to what I know best - Kebatho's professional journey. Ask me about his experience or education! 🎓",
+      "I'm here to help with anything related to Kebatho, from his skills to his favorite jokes. What's on your mind? 😊",
+      "Not quite sure what you mean, but I'm excited to chat! Tell me more about what you're looking for. 💬"
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
 }
 
