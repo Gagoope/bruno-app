@@ -630,7 +630,7 @@ function getBotResponse(userMessage) {
     setUsageCounter('laughCounter', counter + 1);
     return response;
   } else if (message.includes('about') || message.includes('background') || message.includes('bio')) {
-    return "I am Kebatho Modise, a Risk Manager and Insurance Trainer from Botswana. I have 10 months' experience in client solicitation and 2 years 6 months as an Insurance Trainer. I'm passionate about risk management and insurance education. Fun fact: I once trained a group of trainees who thought 'risk' was just a board game! 🎲";
+    return "I am Kebatho Modise, a Risk Management and Insurance Degree Holder from Botswana. I have 10 months' experience in client solicitation and 2 years 6 months as an Insurance Trainer. I'm passionate about risk management and insurance education. Fun fact: I once trained a group of trainees who thought 'risk' was just a board game! 🎲";
   } else if (message.includes('education') || message.includes('degree') || message.includes('school')) {
     return "I hold a B.Com (Hons) Degree in Risk Management and Insurance from Ba Isago University (July 2018 - December 2022). I also completed my BGCSE at Nata Senior Secondary School (February 2016 - November 2017). Pro tip: Studying risk management taught me that the biggest risk is not having coffee in the morning! ☕";
   } else if (message.includes('experience') || message.includes('work') || message.includes('job')) {
@@ -754,3 +754,4 @@ window.addEventListener('load', () => {
   createParticles();
   document.body.style.opacity = '1';
 });
+
