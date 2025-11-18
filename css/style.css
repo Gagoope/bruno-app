@@ -1116,6 +1116,10 @@ footer {
         padding: 15px;
     }
 
+    .modal-content {
+        margin-top: 80px;
+    }
+
     .chat-messages {
         max-height: 300px;
         padding: 8px;
